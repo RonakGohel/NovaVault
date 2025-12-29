@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title>Login - NovaVault</title>
+  <style>
+    body { font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #0f1222; color: white; }
+    .login-container { background: #161a2f; padding: 40px; border-radius: 20px; width: 350px; border: 1px solid #2a3154; }
+    .form-group { margin-bottom: 20px; }
+    .form-group input { width: 100%; padding: 12px; border-radius: 10px; background: #0f1328; color: white; border: 1px solid #2a3154; box-sizing: border-box; }
+    .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #7c5cff, #4ad4ff); border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Login to NovaVault</h2>
+    <div class="form-group"><input type="text" id="username" placeholder="Email Address"></div>
+    <div class="form-group"><input type="password" id="password" placeholder="Password"></div>
+    <button class="btn" id="loginBtn">Login</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4tcA_TjLw6tsxjUyuhlIQkj2Yg4EZ530",
+      authDomain: "novavault-e5e9f.firebaseapp.com",
+      projectId: "novavault-e5e9f",
+      databaseURL: "https://novavault-e5e9f-default-rtdb.firebaseio.com/",
+      appId: "1:24832406592:web:1b1b185bfc0310e9e55ba5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    document.getElementById('loginBtn').onclick = async () => {
+      const email = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+        const snapshot = await get(ref(db, 'users/' + userCredential.user.uid));
+        if (snapshot.exists()) {
+          sessionStorage.setItem('currentMasterKey', snapshot.val().masterKey);
+          sessionStorage.setItem('currentUserEmail', email);
+          sessionStorage.setItem('currentUID', userCredential.user.uid);
+          window.location.href = "Home_Page.html";
+        }
+      } catch (error) { alert("Login Error: " + error.message); }
+    };
+  </script>
+</body>
+</html>
