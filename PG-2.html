@@ -16,6 +16,7 @@
     <div class="form-group"><input type="text" id="username" placeholder="Email Address"></div>
     <div class="form-group"><input type="password" id="password" placeholder="Password"></div>
     <button class="btn" id="loginBtn">Login</button>
+    <button class="btn" id="demoLoginBtn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-top:10px;" onclick="demoLogin()">Demo Login</button>
     <p style="text-align:center; font-size:14px; margin-top:20px;">
       <a href="index.html" style="color:#4ad4ff; text-decoration:none;">Back to Registration</a>
     </p>
@@ -74,7 +75,16 @@ setTimeout(() => { window.location.href = "Home_Page.html"; }, 500);
         alert("Login Failed: " + error.message);
       }
     });
+
+    // Demo login function for testing without Firebase
+function demoLogin() {
+  alert("Demo Login Activated! Redirecting to Home...");
+  setTimeout(() => {
+    window.location.href = "Home_Page.html";
+  }, 500);
+}
   </script>
 </body>
 </html>
+
 
