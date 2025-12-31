@@ -22,9 +22,28 @@
         <p style="text-align:center; font-size:14px; margin-top:20px;"><a href="index.html" style="color:#4ad4ff; text-decoration:none;">Back to Registration</a></p>
     </div>
 
-    <script>
-        // Login Button - NO FIREBASE REQUIRED
-        document.getElementById('loginBtn').addEventListener('click', () => {
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4tcA_TjLw6tsxjUyuhlIQkj2Yg4EZ530",
+            authDomain: "novavault-e5e9f.firebaseapp.com",
+            databaseURL: "https://novavault-e5e9f-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "novavault-e5e9f",
+            storageBucket: "novavault-e5e9f.firebasestorage.app",
+            messagingSenderId: "24832406592",
+            appId: "1:24832406592:web:1b1b185bfc0310e9e55ba5",
+            measurementId: "G-SF7D3S8S9L"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // Regular Login with Firebase Authentication
+        document.getElementById('loginBtn').addEventListener('click', async () => {
             const email = document.getElementById("username").value;
             const pass = document.getElementById("password").value;
 
@@ -33,24 +52,31 @@
                 return;
             }
 
-            // Simple validation - any non-empty email and password works
-            if (email.includes('@')) {
-                // Store user data in sessionStorage
-                sessionStorage.setItem('currentUserEmail', email);
-                sessionStorage.setItem('isLoggedIn', 'true');
-                
-                alert("Login Successful!");
-                setTimeout(() => {
-                    window.location.href = "Home_Page.html";
-                }, 500);
-            } else {
-                alert("Please enter a valid email address");
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+                const user = userCredential.user;
+
+                const snapshot = await get(ref(db, 'users/' + user.uid));
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    sessionStorage.setItem('currentMasterKey', data.masterKey);
+                    sessionStorage.setItem('currentUserEmail', email);
+                    sessionStorage.setItem('currentUID', user.uid);
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    alert("Login Successful!");
+                    setTimeout(() => {
+                        window.location.href = "Home_Page.html";
+                    }, 500);
+                } else {
+                    alert("Error: User vault not found. Please register.");
+                }
+            } catch (error) {
+                alert("Login Failed: " + error.message);
             }
         });
 
-        // Demo Login Button - WORKS WITHOUT ANY CREDENTIALS
+        // Demo Login (Works without Firebase credentials)
         document.getElementById('demoLoginBtn').addEventListener('click', () => {
-            // Set demo user data
             sessionStorage.setItem('currentUserEmail', 'demo@novavault.com');
             sessionStorage.setItem('isLoggedIn', 'true');
             sessionStorage.setItem('isDemoUser', 'true');
