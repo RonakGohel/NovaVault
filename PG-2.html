@@ -1,90 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><title>Login - NovaVault</title>
-  <style>
-    body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #0f1222; color: white; }
-    .login-container { background: #161a2f; padding: 40px; border-radius: 20px; width: 350px; border: 1px solid #2a3154; }
-    .form-group { margin-bottom: 20px; }
-    .form-group input { width: 100%; padding: 12px; border-radius: 10px; background: #0f1328; color: white; border: 1px solid #2a3154; box-sizing: border-box; }
-    .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #7c5cff, #4ad4ff); border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: #0b0f1a; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Login - NovaVault</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #0f1222; color: white; }
+        .login-container { background: #161a2f; padding: 40px; border-radius: 20px; width: 350px; border: 1px solid #2a3154; }
+        .form-group { margin-bottom: 20px; }
+        .form-group input { width: 100%; padding: 12px; border-radius: 10px; background: #0f1328; color: white; border: 1px solid #2a3154; box-sizing: border-box; }
+        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #7c5cff, #4ad4ff); border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: #0b0f1a; margin-top: 10px; }
+        .btn-demo { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    </style>
 </head>
 <body>
-  <div class="login-container">
-    <h2>Login to NovaVault</h2>
-    <div class="form-group"><input type="text" id="username" placeholder="Email Address"></div>
-    <div class="form-group"><input type="password" id="password" placeholder="Password"></div>
-    <button class="btn" id="loginBtn">Login</button>
-    <button class="btn" id="demoLoginBtn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-top:10px;" onclick="demoLogin()">Demo Login</button>
-    <p style="text-align:center; font-size:14px; margin-top:20px;">
-      <a href="index.html" style="color:#4ad4ff; text-decoration:none;">Back to Registration</a>
-    </p>
-  </div>
+    <div class="login-container">
+        <h2>Login to NovaVault</h2>
+        <div class="form-group"><input type="text" id="username" placeholder="Email Address"></div>
+        <div class="form-group"><input type="password" id="password" placeholder="Password"></div>
+        <button class="btn" id="loginBtn">Login</button>
+        <button class="btn btn-demo" id="demoLoginBtn">Demo Login</button>
+        <p style="text-align:center; font-size:14px; margin-top:20px;"><a href="index.html" style="color:#4ad4ff; text-decoration:none;">Back to Registration</a></p>
+    </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC4tcA_TjLw6tsxjUyuhlIQkj2Yg4EZ530",
-      authDomain: "novavault-e5e9f.firebaseapp.com",
-      projectId: "novavault-e5e9f",
-      databaseURL: "https://novavault-e5e9f-default-rtdb.firebaseio.com/",
-      appId: "1:24832406592:web:1b1b185bfc0310e9e55ba5"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4tcA_TjLw6tsxJuyuhIQkj2Yg4EZ530",
+            authDomain: "novavault-e5e9f.firebaseapp.com",
+            projectId: "novavault-e5e9f",
+            databaseURL: "https://novavault-e5e9f-default-rtdb.firebaseio.com/",
+            appId: "1:24832406592:web:1b1b185bfc0310e9e55ba5"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
 
-    // We attach the click event manually for Modules
-    document.getElementById('loginBtn').addEventListener('click', async () => {
-      const email = document.getElementById("username").value;
-      const pass = document.getElementById("password").value;
+        // Regular Login Button
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const email = document.getElementById("username").value;
+            const pass = document.getElementById("password").value;
 
-      console.log("Login button pressed for:", email);
+            if (!email || !pass) {
+                alert("Please enter email and password");
+                return;
+            }
 
-      try {
-        // 1. Firebase Auth check
-        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-        const user = userCredential.user;
-        console.log("Auth Success. UID:", user.uid);
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+                const user = userCredential.user;
 
-        // 2. Fetch Master Key from Database
-        const snapshot = await get(ref(db, 'users/' + user.uid));
-        
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          console.log("Master Key Found. Setting session...");
+                const snapshot = await get(ref(db, 'users/' + user.uid));
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    sessionStorage.setItem('currentMasterKey', data.masterKey);
+                    sessionStorage.setItem('currentUserEmail', email);
+                    sessionStorage.setItem('currentUID', user.uid);
+                    alert("Login Successful!");
+                    setTimeout(() => {
+                        window.location.href = "Home_Page.html";
+                    }, 500);
+                } else {
+                    alert("Error: User vault not found. Please register.");
+                }
+            } catch (error) {
+                alert("Login Failed: " + error.message);
+            }
+        });
 
-          // 3. Save to Session
-          sessionStorage.setItem('currentMasterKey', data.masterKey);
-          sessionStorage.setItem('currentUserEmail', email);
-          sessionStorage.setItem('currentUID', user.uid);
-
-          alert("Login Successful!");
-setTimeout(() => { window.location.href = "Home_Page.html"; }, 500);
-          } else {
-          console.error("No database record for this UID.");
-          alert("Error: User exists but no vault data found. Please register again.");
-        }
-      } catch (error) {
-        console.error("Firebase Error:", error.code, error.message);
-        alert("Login Failed: " + error.message);
-      }
-    });
-
-    // Demo login function for testing without Firebase
-function demoLogin() {
-  alert("Demo Login Activated! Redirecting to Home...");
-  setTimeout(() => {
-    window.location.href = "Home_Page.html";
-  }, 500);
-}
-  </script>
+        // Demo Login Button - NO FIREBASE REQUIRED
+        document.getElementById('demoLoginBtn').addEventListener('click', () => {
+            alert("Demo Login Activated! Redirecting to Home...");
+            setTimeout(() => {
+                window.location.href = "Home_Page.html";
+            }, 500);
+        });
+    </script>
 </body>
 </html>
-
-
