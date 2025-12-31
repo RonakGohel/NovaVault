@@ -180,34 +180,31 @@
     </section>
   </main>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // 1. Clear session data
-            sessionStorage.removeItem('currentMasterKey');
-            sessionStorage.removeItem('currentUserEmail');
-            sessionStorage.removeItem('currentUID');
-            sessionStorage.clear(); 
+<script type="module">
+  // 1. Check if the user is actually logged in
+  const masterKey = sessionStorage.getItem('currentMasterKey');
+  const uid = sessionStorage.getItem('currentUID');
 
-            // 2. Alert and redirect to the NEW index page
-            alert("Logging out...");
-            window.location.href = "index.html"; 
-        });
-    }
-});
+  if (!masterKey || !uid) {
+      console.log("No session found, redirecting to login...");
+      window.location.href = "PG-2.html";
+  }
 
-// Security Gate: Redirect if not logged in
-if (!sessionStorage.getItem('currentMasterKey')) {
-    window.location.href = "PG-2.html";
-}
-  </script>
+  // 2. Handle the Logout Button
+  document.addEventListener('DOMContentLoaded', function() {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+          logoutBtn.onclick = () => {
+              sessionStorage.clear(); // Wipe cloud session data
+              alert("Logged out successfully.");
+              window.location.href = "index.html"; // Back to registration/landing
+          };
+      }
+  });
+</script>
   
   <script type="module" src="script.js"></script>
 
 </body>
+
 </html>
