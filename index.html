@@ -27,7 +27,10 @@
   <div class="container">
     <header>
       <div class="brand"><div class="logo"></div><h1>NovaVault</h1></div>
-      <nav><button class="btn" id="open-auth">Login / Register</button> <a href="Constraints.html"><button class="btn btn-primary">Password Generator</button></a></nav>
+      <nav>
+        <button class="btn" id="open-auth">Login / Register</button> 
+        <a href="Constraints.html"><button class="btn btn-primary">Password Generator</button></a>
+      </nav>
     </header>
     <main style="text-align: center; margin-top: 100px;">
       <h2>Welcome to NovaVault</h2>
@@ -37,7 +40,11 @@
 
   <div class="modal-backdrop" id="auth-modal">
     <div class="modal">
-      <div class="tabs"><div class="tab active" id="tab-login-btn">Login</div><div class="tab" id="tab-reg-btn">Register</div></div>
+      <div class="tabs">
+        <div class="tab active" id="tab-login-btn">Login</div>
+        <div class="tab" id="tab-reg-btn">Register</div>
+      </div>
+      
       <form class="form" id="register-form" style="display:none">
         <input type="text" id="reg-name" placeholder="Full Name" required>
         <input type="email" id="reg-email" placeholder="Email Address" required>
@@ -45,51 +52,83 @@
         <input type="password" id="reg-confirm" placeholder="Confirm Password" required>
         <button type="submit" class="btn btn-primary">Create Account Online</button>
       </form>
-      <div id="login-info" style="text-align:center;"><p>Already have an account?</p><a href="PG-2.html"><button class="btn btn-primary">Go to Login Page</button></a></div>
-      <button class="btn" style="margin-top:20px; width:100%" onclick="document.getElementById('auth-modal').style.display='none'">Close</button>
+
+      <div id="login-info" style="text-align:center;">
+        <p>Already have an account?</p>
+        <a href="PG-2.html"><button class="btn btn-primary">Go to Login Page</button></a>
+      </div>
+      
+      <button class="btn" style="margin-top:20px; width:100%" id="close-modal">Close</button>
     </div>
   </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyC4tcA_TjLw6tsxjUyuhlIQkj2Yg4EZ530",
-    authDomain: "novavault-e5e9f.firebaseapp.com",
-    projectId: "novavault-e5e9f",
-    databaseURL: "https://novavault-e5e9f-default-rtdb.firebaseio.com/", // EXPLICIT URL
-    storageBucket: "novavault-e5e9f.firebasestorage.app",
-    appId: "1:24832406592:web:1b1b185bfc0310e9e55ba5"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4tcA_TjLw6tsxjUyuhlIQkj2Yg4EZ530",
+      authDomain: "novavault-e5e9f.firebaseapp.com",
+      projectId: "novavault-e5e9f",
+      databaseURL: "https://novavault-e5e9f-default-rtdb.firebaseio.com/",
+      appId: "1:24832406592:web:1b1b185bfc0310e9e55ba5"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-  // ... (Keep your modal display logic) ...
+    // --- MODAL NAVIGATION LOGIC ---
+    const modal = document.getElementById('auth-modal');
+    const openBtn = document.getElementById('open-auth');
+    const closeBtn = document.getElementById('close-modal');
+    const tabLogin = document.getElementById('tab-login-btn');
+    const tabReg = document.getElementById('tab-reg-btn');
+    const regForm = document.getElementById('register-form');
+    const loginInfo = document.getElementById('login-info');
 
-  document.getElementById('register-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('reg-email').value;
-    const pass = document.getElementById('reg-pass').value;
+    // Open Modal
+    openBtn.addEventListener('click', () => { modal.style.display = 'flex'; });
     
-    const masterKey = prompt("Set your Master Key:");
-    if(!masterKey) return;
+    // Close Modal
+    closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
 
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-      // Save data using the UID as the folder name
-      await set(ref(db, 'users/' + userCredential.user.uid), {
-        email: email,
-        masterKey: masterKey
-      });
-      alert("Registration Successful!");
-      window.location.href = "PG-2.html";
-    } catch (error) { alert(error.message); }
-  };
-</script>
+    // Switch to Register Tab
+    tabReg.addEventListener('click', () => {
+      regForm.style.display = 'grid';
+      loginInfo.style.display = 'none';
+      tabReg.classList.add('active');
+      tabLogin.classList.remove('active');
+    });
+
+    // Switch to Login Tab
+    tabLogin.addEventListener('click', () => {
+      regForm.style.display = 'none';
+      loginInfo.style.display = 'block';
+      tabLogin.classList.add('active');
+      tabReg.classList.remove('active');
+    });
+
+    // Registration Handler
+    regForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('reg-email').value;
+      const pass = document.getElementById('reg-pass').value;
+      const confirm = document.getElementById('reg-confirm').value;
+
+      if(pass !== confirm) return alert("Passwords do not match");
+
+      const masterKey = prompt("Set your Master Key (Required for vault):");
+      if(!masterKey) return;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        await set(ref(db, 'users/' + userCredential.user.uid), { email, masterKey });
+        alert("Registration Successful!");
+        window.location.href = "PG-2.html";
+      } catch (error) { alert(error.message); }
+    };
+  </script>
 </body>
-
 </html>
