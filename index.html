@@ -4,61 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NovaVault - Home</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root{ --bg:#0f1222; --card:#161a2f; --accent:#7c5cff; --accent-2:#4ad4ff; --text:#e8eaed; --muted:#a8b0c2; }
-    body{ margin:0; font-family:Inter, sans-serif; color:var(--text); background: var(--bg); min-height: 100vh; display: flex; flex-direction: column; }
+    body{ margin:0; font-family: sans-serif; color:var(--text); background: var(--bg); min-height: 100vh; display: flex; flex-direction: column; }
     .container{ max-width:1100px; margin:0 auto; padding:32px 20px; flex: 1; }
     header{ display:flex; align-items:center; justify-content:space-between; }
-    .brand{ display:flex; align-items:center; gap:12px; }
-    .logo{ width:40px; height:40px; border-radius:12px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); }
     .btn{ cursor:pointer; font-weight:600; border-radius:12px; padding:10px 16px; border:none; color:var(--text); background:#232845; }
     .btn-primary{ background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#0b0f1a; }
-    .modal-backdrop{ position:fixed; inset:0; background:#000000aa; backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:50; }
-    .modal{ width:100%; max-width:500px; background:#121631; border-radius:18px; padding:24px; border:1px solid #2a3154; }
+    .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:999; }
+    .modal{ width:90%; max-width:400px; background:#121631; border-radius:18px; padding:24px; border:1px solid #2a3154; }
     .form{ display:grid; gap:15px; }
     .form input{ padding:12px; border-radius:10px; border:1px solid #2a3154; background:#0f1328; color:white; }
-    .tabs{ display:flex; gap:10px; margin-bottom: 20px; }
-    .tab{ flex:1; padding:10px; background:#232845; border-radius:8px; cursor:pointer; text-align:center; }
-    .tab.active{ background:var(--accent); color:white; }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <div class="brand"><div class="logo"></div><h1>NovaVault</h1></div>
+      <h1>NovaVault</h1>
       <nav>
         <button class="btn" id="open-auth">Login / Register</button> 
         <a href="Constraints.html"><button class="btn btn-primary">Password Generator</button></a>
       </nav>
     </header>
     <main style="text-align: center; margin-top: 100px;">
-      <h2>Welcome to NovaVault</h2>
-      <p style="color:var(--muted)">Your secure, cloud-synced password manager.</p>
+      <h2>Secure Cloud Vault</h2>
     </main>
   </div>
 
   <div class="modal-backdrop" id="auth-modal">
     <div class="modal">
-      <div class="tabs">
-        <div class="tab active" id="tab-login-btn">Login</div>
-        <div class="tab" id="tab-reg-btn">Register</div>
-      </div>
-      
-      <form class="form" id="register-form" style="display:none">
-        <input type="text" id="reg-name" placeholder="Full Name" required>
+      <h3 id="modal-title">Register Account</h3>
+      <form class="form" id="register-form">
         <input type="email" id="reg-email" placeholder="Email Address" required>
         <input type="password" id="reg-pass" placeholder="Password" required>
-        <input type="password" id="reg-confirm" placeholder="Confirm Password" required>
-        <button type="submit" class="btn btn-primary">Create Account Online</button>
+        <button type="submit" class="btn btn-primary">Create Account</button>
       </form>
-
-      <div id="login-info" style="text-align:center;">
-        <p>Already have an account?</p>
-        <a href="PG-2.html"><button class="btn btn-primary">Go to Login Page</button></a>
-      </div>
-      
-      <button class="btn" style="margin-top:20px; width:100%" id="close-modal">Close</button>
+      <p style="text-align:center">Already have an account? <a href="PG-2.html" style="color:var(--accent-2)">Login here</a></p>
+      <button class="btn" style="width:100%" id="close-modal">Cancel</button>
     </div>
   </div>
 
@@ -79,53 +61,33 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // --- MODAL NAVIGATION LOGIC ---
+    // --- DOM ELEMENTS ---
     const modal = document.getElementById('auth-modal');
     const openBtn = document.getElementById('open-auth');
     const closeBtn = document.getElementById('close-modal');
-    const tabLogin = document.getElementById('tab-login-btn');
-    const tabReg = document.getElementById('tab-reg-btn');
     const regForm = document.getElementById('register-form');
-    const loginInfo = document.getElementById('login-info');
 
-    // Open Modal
-    openBtn.addEventListener('click', () => { modal.style.display = 'flex'; });
+    // --- BUTTON EVENT LISTENERS ---
+    openBtn.onclick = () => { 
+        console.log("Opening Modal...");
+        modal.style.display = 'flex'; 
+    };
     
-    // Close Modal
-    closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+    closeBtn.onclick = () => { modal.style.display = 'none'; };
 
-    // Switch to Register Tab
-    tabReg.addEventListener('click', () => {
-      regForm.style.display = 'grid';
-      loginInfo.style.display = 'none';
-      tabReg.classList.add('active');
-      tabLogin.classList.remove('active');
-    });
-
-    // Switch to Login Tab
-    tabLogin.addEventListener('click', () => {
-      regForm.style.display = 'none';
-      loginInfo.style.display = 'block';
-      tabLogin.classList.add('active');
-      tabReg.classList.remove('active');
-    });
-
-    // Registration Handler
+    // --- REGISTRATION LOGIC ---
     regForm.onsubmit = async (e) => {
       e.preventDefault();
       const email = document.getElementById('reg-email').value;
       const pass = document.getElementById('reg-pass').value;
-      const confirm = document.getElementById('reg-confirm').value;
 
-      if(pass !== confirm) return alert("Passwords do not match");
-
-      const masterKey = prompt("Set your Master Key (Required for vault):");
+      const masterKey = prompt("Set your Master Key (Important!):");
       if(!masterKey) return;
 
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         await set(ref(db, 'users/' + userCredential.user.uid), { email, masterKey });
-        alert("Registration Successful!");
+        alert("Success!");
         window.location.href = "PG-2.html";
       } catch (error) { alert(error.message); }
     };
