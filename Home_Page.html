@@ -194,7 +194,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
      appId: "1:24832406592:web:1b1b185bfc0310e9e55ba5"
    };
    
-   const app = initializeApp(firebaseConfig);
+try { 
+  const app = initializeApp(firebaseConfig);
    const auth = getAuth(app);
    
    onAuthStateChanged(auth, (user) => {
@@ -203,6 +204,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
      }
    });
   }
+  } catch (error) { console.log('Firebase initialization error (expected in demo mode):', error.message); }
+
 
   // 2. Handle the Logout Button
   document.addEventListener('DOMContentLoaded', function() {
@@ -222,4 +225,5 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 </body>
 
 </html>
+
 
