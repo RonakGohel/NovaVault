@@ -18,7 +18,7 @@
     <button class="btn" id="loginBtn">Login</button>
   </div>
 
-  <script type="module">
+ <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -27,7 +27,7 @@
     apiKey: "AIzaSyC4tcA_TjLw6tsxjUyuhlIQkj2Yg4EZ530",
     authDomain: "novavault-e5e9f.firebaseapp.com",
     projectId: "novavault-e5e9f",
-    databaseURL: "https://novavault-e5e9f-default-rtdb.firebaseio.com/", // Ensure this matches your console!
+    databaseURL: "https://novavault-e5e9f-default-rtdb.firebaseio.com/", 
     storageBucket: "novavault-e5e9f.firebasestorage.app",
     appId: "1:24832406592:web:1b1b185bfc0310e9e55ba5"
   };
@@ -39,37 +39,38 @@
   document.getElementById('loginBtn').onclick = async () => {
     const email = document.getElementById("username").value;
     const pass = document.getElementById("password").value;
-    
-    if(!email || !pass) return alert("Please fill in all fields.");
 
     try {
-      // 1. Sign in
+      console.log("Attempting login...");
       const userCredential = await signInWithEmailAndPassword(auth, email, pass);
       const user = userCredential.user;
-      console.log("Logged in UID:", user.uid);
+      console.log("Auth success! UID:", user.uid);
 
-      // 2. Fetch User Data from Database
+      // Fetch the master key stored during registration
       const snapshot = await get(ref(db, 'users/' + user.uid));
       
       if (snapshot.exists()) {
-        const userData = snapshot.val();
+        const data = snapshot.val();
+        console.log("Database data found. Setting session...");
         
-        // 3. Set Session Storage
-        sessionStorage.setItem('currentMasterKey', userData.masterKey);
+        // Save to session for the generator and manager to use
+        sessionStorage.setItem('currentMasterKey', data.masterKey);
         sessionStorage.setItem('currentUserEmail', email);
         sessionStorage.setItem('currentUID', user.uid);
         
-        console.log("Session set. Redirecting...");
+        alert("Login Successful!");
         window.location.href = "Home_Page.html"; 
       } else {
-        alert("Account exists but profile data not found in database. Check your registration logic.");
+        console.error("No data found at path: users/" + user.uid);
+        alert("Login successful, but your vault profile is missing. Please re-register.");
       }
     } catch (error) { 
-      console.error("Login Error Details:", error);
-      alert("Login Error: " + error.message); 
+      console.error("Detailed Error:", error);
+      alert("Error: " + error.message); 
     }
   };
 </script>
 
 </body>
+
 </html>
